@@ -338,6 +338,7 @@ document.querySelectorAll(".leader-carousel").forEach((carousel) => {
   const cards = Array.from(carousel.querySelectorAll(".leader-card"));
   let autoplayId = null;
   let resumeId = null;
+  let currentIndex = 0;
 
   if (!track || cards.length <= 1) {
     return;
@@ -345,19 +346,20 @@ document.querySelectorAll(".leader-carousel").forEach((carousel) => {
 
   const getCardOffsets = () => cards.map((card) => card.offsetLeft - track.offsetLeft);
 
-  const getCurrentIndex = () => {
+  const getMaxStartIndex = () => {
     const offsets = getCardOffsets();
-    return offsets.reduce((closestIndex, offset, index) => {
-      const closestDistance = Math.abs(offsets[closestIndex] - track.scrollLeft);
-      const distance = Math.abs(offset - track.scrollLeft);
-      return distance < closestDistance ? index : closestIndex;
+    const maxScroll = track.scrollWidth - track.clientWidth;
+    return offsets.reduce((maxIndex, offset, index) => {
+      return offset <= maxScroll + 1 ? index : maxIndex;
     }, 0);
   };
 
   const goToIndex = (index, behavior = "smooth") => {
     const offsets = getCardOffsets();
-    const targetIndex = (index + cards.length) % cards.length;
+    const maxStartIndex = getMaxStartIndex();
+    const targetIndex = Math.max(0, Math.min(index, maxStartIndex));
     const maxScroll = track.scrollWidth - track.clientWidth;
+    currentIndex = targetIndex;
     track.scrollTo({
       left: Math.min(offsets[targetIndex], maxScroll),
       behavior,
@@ -365,7 +367,18 @@ document.querySelectorAll(".leader-carousel").forEach((carousel) => {
   };
 
   const goByDirection = (direction) => {
-    goToIndex(getCurrentIndex() + direction);
+    const maxStartIndex = getMaxStartIndex();
+    if (direction > 0 && currentIndex >= maxStartIndex) {
+      goToIndex(0);
+      return;
+    }
+
+    if (direction < 0 && currentIndex <= 0) {
+      goToIndex(maxStartIndex);
+      return;
+    }
+
+    goToIndex(currentIndex + direction);
   };
 
   const stopAutoplay = () => {
