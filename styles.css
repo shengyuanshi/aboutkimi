@@ -989,6 +989,10 @@ h3 {
   scroll-snap-align: start;
 }
 
+.leader-card:last-child {
+  scroll-snap-align: end;
+}
+
 .carousel-button {
   position: absolute;
   top: 50%;

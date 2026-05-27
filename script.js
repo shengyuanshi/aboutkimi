@@ -359,9 +359,10 @@ document.querySelectorAll(".leader-carousel").forEach((carousel) => {
     const maxStartIndex = getMaxStartIndex();
     const targetIndex = Math.max(0, Math.min(index, maxStartIndex));
     const maxScroll = track.scrollWidth - track.clientWidth;
+    const targetLeft = targetIndex === maxStartIndex ? maxScroll : offsets[targetIndex];
     currentIndex = targetIndex;
     track.scrollTo({
-      left: Math.min(offsets[targetIndex], maxScroll),
+      left: targetLeft,
       behavior,
     });
   };
